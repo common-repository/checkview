@@ -7,7 +7,7 @@ Tested up to: 6.6.1
 Requires PHP: 7.0.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
-Stable tag: 1.1.22
+Stable tag: 2.0.0
 
 [CheckView](https://checkview.io/) is the friendly WordPress automated testing platform for everyone, from developers, shop owners to agencies.  
 
@@ -86,6 +86,40 @@ Yes, creating a [CheckView.io](https://checkview.io/) account is required - for 
 
 == Changelog ==
 
+Here is the reversed changelog:
+= 2.0.0 =
+
+* Resolved token validation issues (SaaS was bypassing without token for forms list endpoint).
+
+* Resolved IP address validation issues (SaaS was not able to bypass even with valid IP address).
+
+* Added data validations (IP address and test ID validations).
+
+* Added API validations (Added extra layer of security with nonce addition).
+
+* Added SaaS IP address validation.
+
+* Added SaaS nonce token validation in all API endpoints.
+
+* Added SSL checks for all API calls.
+
+* Added new database table for storing used nonces.
+
+* Added cron job to delete expired nonces.
+
+* Added logs for API and internal functions.
+
+* Resolved hCaptcha missing fields error after NinjaForms latest updates.
+
+* Added endpoint to expose version changes for installed plugins.
+
+* Resolved Recaptcha validation error in WPForms.
+
+* Resolved Cloudflare Turnstile validation errors in FluentForms.
+
+* Updated container IP addresses.
+
+
 = 1.1.22 =
 * Added a patch to ensure the Contact Form 7 module loads during AJAX requests.
 * Resolved CAPTCHA errors for Contact Form 7.
@@ -126,6 +160,7 @@ Yes, creating a [CheckView.io](https://checkview.io/) account is required - for 
 * Added validations for SaaS IP addresses.
 * Added checks to avoid default product duplications.
 * Added auto restore from trash feature for the default product.
+
 = 1.1.15 =
 * Added filter for invalid URLs in CF7 and Ninja Forms.
 * Added new endpoint to pull additional site info.
@@ -211,6 +246,40 @@ Yes, creating a [CheckView.io](https://checkview.io/) account is required - for 
 * Initial release.
 
 == Upgrade Notice ==
+
+Here is the reversed changelog:
+= 2.0.0 =
+
+* Resolved token validation issues (SaaS was bypassing without token for forms list endpoint).
+
+* Resolved IP address validation issues (SaaS was not able to bypass even with valid IP address).
+
+* Added data validations (IP address and test ID validations).
+
+* Added API validations (Added extra layer of security with nonce addition).
+
+* Added SaaS IP address validation.
+
+* Added SaaS nonce token validation in all API endpoints.
+
+* Added SSL checks for all API calls.
+
+* Added new database table for storing used nonces.
+
+* Added cron job to delete expired nonces.
+
+* Added logs for API and internal functions.
+
+* Resolved hCaptcha missing fields error after NinjaForms latest updates.
+
+* Added endpoint to expose version changes for installed plugins.
+
+* Resolved Recaptcha validation error in WPForms.
+
+* Resolved Cloudflare Turnstile validation errors in FluentForms.
+
+* Updated container IP addresses.
+
 = 1.1.22 =
 * Added a patch to ensure the Contact Form 7 module loads during AJAX requests.
 * Resolved CAPTCHA errors for Contact Form 7.
@@ -251,6 +320,7 @@ Yes, creating a [CheckView.io](https://checkview.io/) account is required - for 
 * Added validations for SaaS IP addresses.
 * Added checks to avoid default product duplications.
 * Added auto restore from trash feature for the default product.
+
 = 1.1.15 =
 * Added filter for invalid URLs in CF7 and Ninja Forms.
 * Added new endpoint to pull additional site info.

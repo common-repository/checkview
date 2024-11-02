@@ -79,7 +79,7 @@ class Checkview {
 		if ( defined( 'CHECKVIEW_VERSION' ) ) {
 			$this->version = CHECKVIEW_VERSION;
 		} else {
-			$this->version = '1.1.22';
+			$this->version = '2.0.0';
 		}
 		$this->plugin_name = 'checkview';
 
@@ -178,6 +178,11 @@ class Checkview {
 		if ( is_plugin_active( 'contact-form-7/wp-contact-form-7.php' ) && ! class_exists( 'checkview_cf7_helper' ) && ( 'checkview-saas' === get_option( $visitor_ip ) || isset( $_REQUEST['checkview_test_id'] ) || ( is_array( $cv_bot_ip ) && in_array( $visitor_ip, $cv_bot_ip ) ) ) ) {
 			$send_to = CHECKVIEW_EMAIL;
 
+			// if clean talk plugin active whitelist check form API IP. .
+			if ( is_plugin_active( 'cleantalk-spam-protect/cleantalk.php' ) ) {
+				checkview_whitelist_api_ip();
+			}
+
 			$cv_test_id = isset( $_REQUEST['checkview_test_id'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['checkview_test_id'] ) ) : '';
 
 			$referrer_url = sanitize_url( wp_get_raw_referer(), array( 'http', 'https' ) );
@@ -187,12 +192,17 @@ class Checkview {
 				checkview_create_cv_session( $visitor_ip, $cv_test_id );
 				update_option( $visitor_ip, 'checkview-saas', true );
 			}
-				// If submit VIA AJAX.
+			if ( $cv_test_id && '' !== $cv_test_id ) {
+				setcookie( 'checkview_test_id' . $cv_test_id, $cv_test_id, time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
+			}
+			// If submit VIA AJAX.
 			if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'admin-ajax.php' ) !== false ) {
 				$referer_url_query = wp_parse_url( $referrer_url, PHP_URL_QUERY );
 				$qry_str           = array();
 				parse_str( $referer_url_query, $qry_str );
-				$cv_test_id = $qry_str['checkview_test_id'];
+				if ( ! empty( $qry_str['checkview_test_id'] ) ) {
+					$cv_test_id = $qry_str['checkview_test_id'];
+				}
 			}
 
 			$cv_session = checkview_get_cv_session( $visitor_ip, $cv_test_id );
@@ -353,13 +363,6 @@ class Checkview {
 				3
 			);
 		}
-		$this->loader->add_filter(
-			'option_active_plugins',
-			$plugin_admin,
-			'checkview_disable_unwanted_plugins',
-			99,
-			1
-		);
 		$this->loader->add_action(
 			'init',
 			$plugin_admin,

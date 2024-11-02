@@ -11,7 +11,7 @@ class Test_Checkview_General extends WP_UnitTestCase {
 		$visitor_ip    = checkview_get_visitor_ip();
 		$session_table = $wpdb->prefix . 'cv_session';
 		$test_key      = 'CF_TEST_' . $test_id;
-		// Create a test session in the database
+		// Create a test session in the database.
 		$wpdb->insert(
 			$session_table,
 			array(
@@ -47,7 +47,7 @@ class Test_Checkview_General extends WP_UnitTestCase {
 		$test_id       = 'test_id_123';
 		$test_key      = 'CF_TEST_' . $test_id;
 		$session_table = $wpdb->prefix . 'cv_session';
-		// Create a test session in the database
+		// Create a test session in the database.
 		$wpdb->insert(
 			$session_table,
 			array(
@@ -56,12 +56,12 @@ class Test_Checkview_General extends WP_UnitTestCase {
 				'test_key'   => $test_key,
 			)
 		);
-		// Create a test key option
+		// Create a test key option.
 		update_option( $test_key, 'test_value' );
 
-		// Call the function to complete the test
+		// Call the function to complete the test.
 		complete_checkview_test( $test_id );
-		// Assert that the test key option is deleted
+		// Assert that the test key option is deleted.
 		$this->assertFalse( get_option( $test_key ) );
 	}
 
@@ -88,6 +88,15 @@ class Test_Checkview_General extends WP_UnitTestCase {
 	public function test_update_use_stripe_option() {
 		$test_id    = 'test_id_123';
 		$visitor_ip = checkview_get_visitor_ip();
+
+		// Create a use_stripe option
+		update_option( $visitor_ip . 'use_stripe', 'yes' );
+
+		// Call the function to complete the test
+		complete_checkview_test( $test_id );
+
+		// Assert that the use_stripe option is updated
+		$this->assertEquals( 'no', get_option( $visitor_ip . 'use_stripe' ) );
 	}
 
 	/**

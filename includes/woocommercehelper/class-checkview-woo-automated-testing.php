@@ -127,7 +127,6 @@ class Checkview_Woo_Automated_Testing {
 				10,
 				3
 			);
-
 			$this->loader->add_action(
 				'checkview_delete_orders_action',
 				$this,
@@ -541,7 +540,12 @@ class Checkview_Woo_Automated_Testing {
 		$cv_bot_ip = checkview_get_api_ip();
 		Checkview_Admin_Logs::add( 'ip-logs', wp_json_encode( $cv_bot_ip ) . 'bot IP' );
 		Checkview_Admin_Logs::add( 'ip-logs', wp_json_encode( $visitor_ip ) . 'visitor IP' );
-		if ( ! is_admin() && class_exists( 'WooCommerce' ) && is_array( $cv_bot_ip ) && in_array( $visitor_ip, $cv_bot_ip ) ) {
+		if ( ! is_array( $cv_bot_ip ) || ! in_array( $visitor_ip, $cv_bot_ip ) ) {
+			return;
+		}
+
+		if ( ! is_admin() && class_exists( 'WooCommerce' ) ) {
+
 			// Always use Stripe test mode when on dev or staging.
 			add_filter(
 				'option_woocommerce_stripe_settings',
@@ -552,11 +556,7 @@ class Checkview_Woo_Automated_Testing {
 					return $value;
 				}
 			);
-			add_filter(
-				'cfturnstile_whitelisted',
-				'__return_true',
-				999
-			);
+
 			// Load payment gateway.
 			require_once CHECKVIEW_INC_DIR . 'woocommercehelper/class-checkview-payment-gateway.php';
 
@@ -574,6 +574,11 @@ class Checkview_Woo_Automated_Testing {
 				'woocommerce_blocks_loaded',
 				$this,
 				'checkview_woocommerce_block_support',
+			);
+			add_filter(
+				'cfturnstile_whitelisted',
+				'__return_true',
+				999
 			);
 			// Make the test product visible in the catalog.
 			add_filter(
@@ -597,8 +602,6 @@ class Checkview_Woo_Automated_Testing {
 				10,
 				3
 			);
-			// bypass hcaptcha.
-			add_filter( 'hcap_activate', array( $this, 'checkview_return_false' ), -999, 1 );
 		}
 	}
 	/**
@@ -626,7 +629,7 @@ class Checkview_Woo_Automated_Testing {
 		$visitor_ip      = checkview_get_visitor_ip();
 		// Check view Bot IP.
 		$cv_bot_ip = checkview_get_api_ip();
-		if ( ( 'checkview-saas' === get_option( $visitor_ip ) || isset( $_REQUEST['checkview_test_id'] ) || ( is_array( $cv_bot_ip ) && in_array( $visitor_ip, $cv_bot_ip ) ) ) || ( 'checkview' === $payment_method || 'checkview' === $payment_made_by ) ) {
+		if ( ( isset( $_REQUEST['checkview_test_id'] ) || ( is_array( $cv_bot_ip ) && in_array( $visitor_ip, $cv_bot_ip ) ) ) || ( 'checkview' === $payment_method || 'checkview' === $payment_made_by ) ) {
 			return CHECKVIEW_EMAIL;
 		}
 
@@ -726,13 +729,6 @@ class Checkview_Woo_Automated_Testing {
 	public function checkview_delete_orders( $order_id = '' ) {
 
 		global $wpdb;
-		// Get all checkview orders from wp tables legacy.
-		$orders = $wpdb->get_results(
-			"SELECT p.id
-			FROM {$wpdb->prefix}posts as p
-			LEFT JOIN {$wpdb->prefix}postmeta AS pm ON (p.id = pm.post_id AND pm.meta_key = '_payment_method')
-			WHERE meta_value = 'checkview' "
-		);
 		// WPDBPREPARE.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -813,7 +809,7 @@ class Checkview_Woo_Automated_Testing {
 	 * @return void
 	 */
 	public function checkview_add_custom_fields_after_purchase( $order_id, $old_status, $new_status ) {
-		if ( isset( $_COOKIE['checkview_test_id'] ) && '' !== $_COOKIE['checkview_test_id'] ) {
+		if ( isset( $_COOKIE['checkview_test_id'] ) && '' !== $_COOKIE['checkview_test_id'] && checkview_is_valid_uuid( sanitize_text_field( wp_unslash( $_COOKIE['checkview_test_id'] ) ) ) ) {
 			$order = new WC_Order( $order_id );
 			$order->update_meta_data( 'payment_made_by', 'checkview' );
 
@@ -826,7 +822,6 @@ class Checkview_Woo_Automated_Testing {
 
 		}
 	}
-
 
 	/**
 	 * Make sure we don't reduce the stock levels of products for test orders.

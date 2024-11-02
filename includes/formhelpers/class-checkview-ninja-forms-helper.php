@@ -53,12 +53,6 @@ if ( ! class_exists( 'Checkview_Ninja_Forms_Helper' ) ) {
 				'__return_null',
 				-10
 			);
-			add_filter(
-				'ninja_forms_display_fields',
-				array( $this, 'maybe_remove_v2_field' ),
-				10,
-				2
-			);
 
 			add_filter(
 				'ninja_forms_form_fields',
@@ -98,8 +92,6 @@ if ( ! class_exists( 'Checkview_Ninja_Forms_Helper' ) ) {
 					5
 				);
 			}
-			// bypass hcaptcha.
-			//add_filter( 'hcap_activate', '__return_false' );
 		}
 
 		/**
@@ -135,7 +127,6 @@ if ( ! class_exists( 'Checkview_Ninja_Forms_Helper' ) ) {
 
 			return true;
 		}
-
 		/**
 		 * Clones entry after forms submission.
 		 *
@@ -205,23 +196,6 @@ if ( ! class_exists( 'Checkview_Ninja_Forms_Helper' ) ) {
 				if ( 'recaptcha' === $field->get_setting( 'type' ) || 'hcaptcha-for-ninja-forms' === $field->get_setting( 'type' ) || 'akismet' === $field->get_setting( 'type' ) ) {
 					// Remove v2 reCAPTCHA, hcaptcha fields if still configured.
 					unset( $fields[ $key ] );
-				}
-			}
-			return $fields;
-		}
-
-		/**
-		 * Removes V2 field.
-		 *
-		 * @param array $fields fields.
-		 * @param int   $form_id form id.
-		 * @return fields
-		 */
-		public function maybe_remove_v2_field( $fields, $form_id ) {
-			foreach ( $fields as $key => $field ) {
-				if ( 'hcaptcha-for-ninja-forms' === $field['type'] ) {
-					// Remove v2 reCAPTCHA fields if still configured.
-					//unset( $fields[ $key ] );
 				}
 			}
 			return $fields;
